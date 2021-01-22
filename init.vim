@@ -7,6 +7,7 @@ call plug#begin('~/.vim/plugged')
 
 " Plug 'drewtempelmeyer/palenight.vim' " CC0-1.0 License
 Plug 'joshdick/onedark.vim' " MIT license
+" Plug 'dracula/vim', { 'name': 'dracula' } " MIT License
 " Plug 'sillybun/vim-repl' " gpl 2.0 license
 " Plug 'hkupty/iron.nvim' " bsd 3 clause license
 Plug 'kassio/neoterm' " Apache 2.0 license
@@ -15,6 +16,8 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } " MIT License
 Plug 'preservim/nerdcommenter' " CC0-1.0 License
 Plug 'neoclide/coc.nvim', {'branch': 'release'} " MIT License
 Plug 'airblade/vim-rooter' "MIT License
+Plug '907th/vim-auto-save' "MIT License
+Plug 'tpope/vim-fugitive' " Vim License
 "Plug 'szw/vim-maximizer' " vim license
 " Plug 'metakirby5/codi.vim' " MIT license
 "Plug 'vim-airline/vim-airline'
@@ -25,29 +28,37 @@ Plug 'airblade/vim-rooter' "MIT License
 
 call plug#end()
 
-"let g:deoplete#enable_at_startup = 1
+" For autosaves
+let g:auto_save = 1
 
 let g:python3_host_prog='~/Python/Python38/python'
 let g:python_host_prog='~/Python/Python38/python'
-" pip install jedi-language-server
-" npm install pywright 
-let g:neoterm_direct_open_repl=1
-" let g:neoterm_shell = 'powershell'
+" let g:neoterm_direct_open_repl=1
 let g:neoterm_default_mod = "belowright"
-let g:neoterm_size = 20
-let g:neoterm_autoscroll = 1
-let g:neoterm_repl_python = ['python']
+let g:neoterm_size=20
+let g:neoterm_autoscroll=1
+let g:neoterm_repl_python = ['. .venv/Scripts/activate && ipython --no-autoindent']
+let g:neoterm_shell='bash.exe --login'
+
+" let g:neoterm_repl_python = '.venv\Scrips\activate.bat python'
 " '.venv\Scripts\activate.bat'
 " if has("win32") || has("win64")
-	" let g:neoterm_eof = "\r"
+   " let g:neoterm_eof = "\r"
 " endif
 
 " Vim rooter 
 let g:rooter_patterns = ['.git']
 let g:rooter_change_directory_for_non_project_files = 'current'
+vnoremap <C-Enter> :TREPLSendSelection<CR>
+inoremap <C-Enter> <silent> :TREPLSendLine<CR>
+nnoremap <C-Enter> :TREPLSendLine<CR>
+" vnoremap <C-Enter> <Plug>(neoterm-repl-send-selection)
+" inoremap <C-Enter> <Plug>(neoterm-repl-send-line)
+" nnoremap <C-Enter> <Plug>(neoterm-repl-send-line)
+
+
 
 " Coc 
-" au VimEnter * GuiPopupmenu 0
 " Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
@@ -97,7 +108,7 @@ hi CocHighlightText guibg=#556873 gui=bold
 let g:coc_auto_copen = 0
 autocmd User CocQuickfixChange :call fzf_quickfix#run()
 
-let g:coc_global_extensions = ['coc-json', 'coc-pyright'] 
+let g:coc_global_extensions = ['coc-json', 'coc-pyright', 'coc-yaml', 'coc-todolist', 'coc-toml', 'coc-sh'] 
 
 " --- Coc ---
 " let g:coc_force_debug = 1
@@ -112,11 +123,11 @@ nnoremap <silent> K :call <SID>show_documentation()<CR>
 " Remap for rename current word
 nmap <leader>rn <Plug>(coc-rename)
 " Remap for format selected region
-xmap <leader>f  <Plug>(coc-format-selected)
-nmap <leader>f  <Plug>(coc-format-selected)
+xmap <leader>f  <Plug>(coc-format)
+nmap <leader>f  <Plug>(coc-format)
 " Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
-xmap <leader>a  <Plug>(coc-codeaction-selected)
-nmap <leader>a  <Plug>(coc-codeaction-selected)
+" xmap <leader>a  <Plug>(coc-codeaction-selected)
+" nmap <leader>a  <Plug>(coc-codeaction-selected)
 " Remap for do codeAction of current line
 nmap <leader>ac  <Plug>(coc-codeaction)
 " Fix autofix problem of current line
@@ -135,15 +146,15 @@ endfunc
 command! -nargs=0 Format :call CocAction('format')
 
 " Using CocList
-nnoremap <silent> <space>a  :<C-u>CocList diagnostics<cr>
+nnoremap <silent> <leader>a  :<C-u>CocList diagnostics<cr>
 nnoremap <silent> <space>e  :<C-u>CocList extensions<cr>
 nnoremap <silent> <space>c  :<C-u>CocList commands<cr>
 nnoremap <silent> <space>o  :<C-u>CocList outline<cr>
 nnoremap <silent> <space>s  :<C-u>CocList -I symbols<cr>
 " Do default action for next item.
-nnoremap <silent> <space>j  :<C-u>CocNext<CR>
+" nnoremap <silent> <space>j  :<C-u>CocNext<CR>
 " Do default action for previous item.
-nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
+" nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
 nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
 
 nnoremap <leader>em :CocCommand python.refactorExtractMethod<cr>
@@ -151,7 +162,10 @@ vnoremap <leader>em :CocCommand python.refactorExtractMethod<cr>
 nnoremap <leader>ev :CocCommand python.refactorExtractVariable<cr>
 
 " colors
-colorscheme onedark 
+colorscheme onedark
+" colorscheme dracula
+" colorscheme palenight
+
 set background=dark
 "let g:airline_theme='gruvbox'
 
@@ -198,5 +212,5 @@ nmap <C-/> <plug>NERDCommenterToggle
 " let g:airline#extensions#tabline#enabled=1
 " let g:airline#extensions#tabline#fnamemode=':t'
 "
-let g:slime_target = "neovim"
-
+" let g:slime_target = "neovim"
+"
